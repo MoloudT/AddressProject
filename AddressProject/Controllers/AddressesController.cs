@@ -73,7 +73,35 @@ namespace AddressProject.Controllers
 
             return Ok(adrs);
         }
-        
+        //GET with Search
+        [HttpGet("Search")]
+        public async Task<ActionResult<IEnumerable<AddressDTO>>> GetAddressFilter
+              (String search)
+        {
+
+
+            IQueryable<Address> query = _context.Address;
+            var adrs = await query.Select(x => x.ToAddressDTO()).ToListAsync();
+            if (search != null)
+            {
+                var anysb = new StringBuilder();
+                foreach (var p in (typeof(Address).GetProperties()))
+                    if (p.PropertyType == typeof(string))
+                        anysb.Append($"{p.Name}.Contains(@0)||");
+
+                if (anysb.Length > 0)
+                    anysb.Remove(anysb.Length - 2, 2);
+
+                query = query.Where(anysb.ToString(), search);
+
+
+            }
+
+            adrs = await query.Select(x => x.ToAddressDTO()).ToListAsync();
+
+            return Ok(adrs);
+        }
+
         // GET: api/Addresses/5
         [HttpGet("{id}")]
         public async Task<ActionResult<AddressDTO>> GetAddress(int id)
