@@ -10,7 +10,7 @@ namespace AddressProject.DB
         {
             Configuration = configuration;
         }
-       
+        
         public DbSet<Address> Address { get; set; }
 
     }
