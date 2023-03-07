@@ -13,9 +13,7 @@ namespace AddressProject.DB
        
          protected override void OnConfiguring(DbContextOptionsBuilder options)
          {
-            // options.UseInMemoryDatabase(Configuration.GetConnectionString("WebApiDatabase"));
-             options.UseSqlite(Configuration.GetConnectionString("WebApiDatabase"));
-            
+             options.UseSqlite(Configuration.GetConnectionString("WebApiDatabase"));  
         }
         public DbSet<Address> Address { get; set; }
 

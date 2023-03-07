@@ -8,6 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.InMemory;
 using AddressProject.DB;
 using AddressProject.Entities;
+using AddressProject.Models;
+using AddressProject.Converter;
+using System.Text;
+using System.Linq.Dynamic;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace AddressProject.Controllers
 {
@@ -24,18 +29,54 @@ namespace AddressProject.Controllers
 
         // GET: api/Addresses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Address>>> GetAddress()
+        public async Task<ActionResult<IEnumerable<AddressDTO>>> GetAddress()
         {
           if (_context.Address == null)
           {
               return NotFound();
           }
-            return await _context.Address.ToListAsync();
+            return await _context.Address.Select(x=>x.ToAddressDTO()).ToListAsync();
         }
+        //GET with Filter
+        [HttpGet("Filter")]
+        public async Task<ActionResult<IEnumerable<AddressDTO>>> GetAddressFilter
+              ([FromQuery] AddressQuery addressQuery, [FromQuery] SortOption sort)
+        {
 
+            if (sort.SortOrder!=null ^ sort.SortBy != null)
+                return BadRequest();
+            var filterValues = new List<object>();
+            var sb = new StringBuilder();
+            int valueId = 0;
+            foreach (var p in (typeof(AddressQuery).GetProperties()))
+            {
+                var fieldValue = p.GetValue(addressQuery);
+                if (fieldValue != null)
+                {
+                    sb.Append($"{p.Name}=@{valueId++}&&");
+                    filterValues.Add(fieldValue);
+                }
+
+            }
+            //remove last comma
+            if (sb.Length > 0) sb.Remove(sb.Length - 2, 2);
+            var fstring = sb.ToString();
+            IQueryable<Address> query = _context.Address;
+            
+           
+            if (fstring != null)
+                query = query.Where(fstring,filterValues.ToArray());
+            if (sort.SortBy != null)
+                query = query.OrderBy($"{sort.SortBy} {sort.SortOrder}");
+
+            var adrs = await query.Select(x => x.ToAddressDTO()).ToListAsync();
+
+            return Ok(adrs);
+        }
+        
         // GET: api/Addresses/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Address>> GetAddress(int id)
+        public async Task<ActionResult<AddressDTO>> GetAddress(int id)
         {
           if (_context.Address == null)
           {
@@ -48,20 +89,20 @@ namespace AddressProject.Controllers
                 return NotFound();
             }
 
-            return address;
+            return address.ToAddressDTO();
         }
 
         // PUT: api/Addresses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAddress(int id, Address address)
+        public async Task<IActionResult> PutAddress(int id, AddressDTO addressDTO)
         {
-            if (id != address.Id)
+            if (id != addressDTO.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(address).State = EntityState.Modified;
+            _context.Entry(addressDTO.ToAddress()).State = EntityState.Modified;
 
             try
             {
@@ -85,12 +126,13 @@ namespace AddressProject.Controllers
         // POST: api/Addresses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Address>> PostAddress(Address address)
+        public async Task<ActionResult<AddressDTO>> PostAddress(AddressDTO addressDTO)
         {
           if (_context.Address == null)
           {
               return Problem("Entity set 'DataContex.Address'  is null.");
           }
+            var address = addressDTO.ToAddress();
             _context.Address.Add(address);
             await _context.SaveChangesAsync();
 
