@@ -3,16 +3,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AddressProject.DB
 {
-    public class DataContex:DbContext
+    public class AddressDataContex:DbContext
     {
         protected readonly IConfiguration Configuration;
-        public DataContex(IConfiguration configuration)
+        public AddressDataContex(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-        
-        public DbSet<Address> Address { get; set; }
+       
+         protected override void OnConfiguring(DbContextOptionsBuilder options)
+         {
+             options.UseInMemoryDatabase(Configuration.GetConnectionString("WebApiDatabase"));
+          
+         }
+        public DbSet<Address> Address { get; set; } = null;
 
     }
 }
+
 

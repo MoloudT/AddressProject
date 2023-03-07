@@ -1,15 +1,21 @@
 using Microsoft.EntityFrameworkCore;
-
+using AddressProject.DB;
+using NuGet.Protocol;
+//using AddressProject.Entities;
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-
-builder.Services.AddDbContext<DbContext>(opt => opt.UseSqlite("Name=AddressDB"));
+//Register database context
+builder.Services.AddDbContext<AddressDataContex>(opt => 
+  opt.UseInMemoryDatabase("AddressDB"));// //
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors();
 
 var app = builder.Build();
 
