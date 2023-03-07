@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using AddressProject.DB;
 using NuGet.Protocol;
+using AddressProject.Configurations;
 //using AddressProject.Entities;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,8 @@ builder.Services.AddDbContext<AddressDataContex>(opt =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
-
+//Inject AutoMapper Dependency
+builder.Services.AddAutoMapper(typeof(MapperConfig));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

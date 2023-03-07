@@ -5,7 +5,7 @@ namespace AddressProject.Converter
 {
     public static class Converters
     {
-        public static AddressDTO ToAddressDTO(this Address address) =>
+       /* public static AddressDTO ToAddressDTO(this Address address) =>
            new AddressDTO
            {
                Id = address.Id,
@@ -27,5 +27,6 @@ namespace AddressProject.Converter
                 Country = addressDTO.Country,
 
             };
+       */
     }
 }
