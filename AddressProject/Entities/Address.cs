@@ -1,4 +1,4 @@
-﻿namespace AddressProject.Models
+﻿namespace AddressProject.Entities
 {
     public class Address
     {

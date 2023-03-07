@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.InMemory;
 using AddressProject.DB;
-using AddressProject.Models;
+using AddressProject.Entities;
 
 namespace AddressProject.Controllers
 {

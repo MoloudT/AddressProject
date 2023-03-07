@@ -1,4 +1,4 @@
-﻿using AddressProject.Models;
+﻿using AddressProject.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AddressProject.DB
@@ -13,10 +13,11 @@ namespace AddressProject.DB
        
          protected override void OnConfiguring(DbContextOptionsBuilder options)
          {
-             options.UseInMemoryDatabase(Configuration.GetConnectionString("WebApiDatabase"));
-          
-         }
-        public DbSet<Address> Address { get; set; } = null;
+            // options.UseInMemoryDatabase(Configuration.GetConnectionString("WebApiDatabase"));
+             options.UseSqlite(Configuration.GetConnectionString("WebApiDatabase"));
+            
+        }
+        public DbSet<Address> Address { get; set; }
 
     }
 }

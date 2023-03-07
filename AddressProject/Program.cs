@@ -9,8 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 //Register database context
-builder.Services.AddDbContext<AddressDataContex>(opt => 
-  opt.UseInMemoryDatabase("AddressDB"));// //
+builder.Services.AddDbContext<AddressDataContex>(opt =>
+                  opt.UseSqlite("Name=AddressDB"));
+//opt.UseInMemoryDatabase("AddressDB"));// //
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 builder.Services.AddEndpointsApiExplorer();
