@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AddressProject.DB
 {
+#pragma warning disable CS1591
     public class AddressDataContex:DbContext
     {
         protected readonly IConfiguration Configuration;
@@ -18,6 +19,7 @@ namespace AddressProject.DB
         public DbSet<Address> Address { get; set; }
 
     }
+#pragma warning disable CS1591
 }
 
 

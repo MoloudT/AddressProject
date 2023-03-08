@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using AutoMapper;
 using System.ComponentModel;
 using Microsoft.Extensions.Logging;
+using Azure;
 
 namespace AddressProject.Controllers
 {
@@ -64,12 +65,23 @@ namespace AddressProject.Controllers
             var url=getApiUrl(address);
             var http=new HttpClient();
             var resp= await http.GetAsync(url);
-            var positions=await resp.Content.ReadFromJsonAsync<PositionDTO[]>();
-            var p = positions[0];
-            return new Position { lat = double.Parse(p.lat), lon = double.Parse(p.lon) };
+            Position position=new Position();
+            if (resp.IsSuccessStatusCode)
+            {
+                var positions = await resp.Content.ReadFromJsonAsync<PositionDTO[]>();
+                var p = positions[0];
+                position.lat = double.Parse(p.lat);
+                position.lon = double.Parse(p.lon);
+               // return new Position { lat = double.Parse(p.lat), lon = double.Parse(p.lon) };
+            }
+            return position;
         }
 
         // GET: api/Addresses
+        /// <summary>
+        /// Get address items to show all address items of database.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         
         public async Task<ActionResult<IEnumerable<AddressDTO>>> GetAddress()
@@ -92,16 +104,37 @@ namespace AddressProject.Controllers
             }
             
         }
-    
-   
+
+
         //GET with Filter
+        /// <summary>
+        /// Get address items by filter
+        /// </summary>
+        /// <param name="addressQuery"> The address item to search</param>
+        /// <param name="sort">The field based on which we want to sort</param>
+        ///   <remarks>
+        /// Sample request:
+        ///
+        ///     Get/Filter
+        ///     {
+        ///        "Id": 1,
+        ///        "Street": "IpsumStraat",
+        ///        "HouseNumber":"79Y"
+        ///        "ZipCode": "3778 XH",
+        ///        "City":"Emmen",
+        ///        "Country":"Netherlands",
+        ///        "SortOrder":"Asc",
+        ///        "SortBy":"City"
+        ///     }
+        /// </remarks>
+        /// <returns></returns>
         [HttpGet("Filter")]
         public async Task<ActionResult<IEnumerable<AddressDTO>>> GetAddressFilter
               ([FromQuery] AddressQuery addressQuery, [FromQuery] SortOption sort)
         {
             try
             {
-                if (sort.SortOrder != null ^ sort.SortBy != null)
+                if (sort.SortOrder.HasValue ^ sort.SortBy != null)
                     return BadRequest();
                 var filterValues = new List<object>();
                 var sb = new StringBuilder();
@@ -126,7 +159,7 @@ namespace AddressProject.Controllers
                 //if at least one of the fields is filled
                 if (fstring != null)
                     query = query.Where(fstring, filterValues.ToArray());
-                if (sort.SortBy != null && sort.SortOrder != null)
+                if (sort.SortBy != null && sort.SortOrder.HasValue)
                     query = query.OrderBy($"{sort.SortBy} {sort.SortOrder}");
 
                 // var adrs = await query.Select(x => x.ToAddressDTO()).ToListAsync();
@@ -141,6 +174,19 @@ namespace AddressProject.Controllers
             }
         }
         //GET with Search
+        /// <summary>
+        /// Search in all fields of Address Items by keyword.
+        /// </summary>
+        /// <param name="search"> the keyword to search in all field of address items</param>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Get/Search
+        ///     {
+        ///        "search":"Emmen"   
+            /// }
+            /// </remarks>
+        /// <returns></returns>
         [HttpGet("Search")]
         public async Task<ActionResult<IEnumerable<AddressDTO>>> GetAddressFilterByString
               (String search)
@@ -179,6 +225,19 @@ namespace AddressProject.Controllers
         }
 
         // GET: api/Addresses/5
+        /// <summary>
+        /// Get a specific Address Item by Id.
+        /// </summary>
+        /// <param name="id"></param>
+        ///  <remarks>
+        /// Sample request:
+        ///
+        ///     Get
+        ///     {
+        ///        "Id": 1
+        ///     }
+        /// </remarks>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<AddressDTO>> GetAddress(int id)
         {
@@ -207,6 +266,21 @@ namespace AddressProject.Controllers
             }
         }
         //GET ("distance")
+        /// <summary>
+        /// Get Distance(Kilometers) of two specific Address Item which spedified by Id.
+        /// </summary>
+        /// <param name="id1">the id of origin address item</param>
+        /// <param name="id2">the id of destination address item</param>
+        ///  <remarks>
+        /// Sample request:
+        ///
+        ///     Get/Distance
+        ///     {
+        ///        "Id1": 1,
+        ///        "Id2":5
+        ///     }
+        /// </remarks>
+        /// <returns></returns>
         [HttpGet("Distance")]
 
         public async Task<ActionResult<double>> GetDistance(int id1, int id2)
@@ -239,7 +313,28 @@ namespace AddressProject.Controllers
 
         // PUT: api/Addresses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+
+        /// <summary>
+        /// Put a specific Address Item.
+        /// </summary>
+        /// <param name="id"> the id of address item to edit</param>
+        /// <param name="addressDTO">the address item</param>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     Post /Address
+        ///     {
+        ///        "Id": 1,
+        ///        "Street": "IpsumStraat",
+        ///        "HouseNumber":"79Y"
+        ///        "ZipCode": "3778 XH",
+        ///        "City":"Emmen",
+        ///        "Country":"Netherlands"
+            ///        
+            ///     }
+            /// </remarks>
+            /// <returns></returns>
+            [HttpPut("{id}")]
         public async Task<IActionResult> PutAddress(int id, AddressDTO addressDTO)
         {
             
@@ -274,7 +369,27 @@ namespace AddressProject.Controllers
         }
 
         // POST: api/Addresses
+        /// <summary>
+        /// Post a specific Address Item.
+        /// </summary>
+        /// <param name="addressDTO"> the address item</param>
+        ///  <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /Address
+        ///     {
+        ///        "Id": 1,
+        ///        "Street": "IpsumStraat",
+        ///        "HouseNumber":"79Y"
+        ///        "ZipCode": "3778 XH",
+        ///        "City":"Emmen",
+        ///        "Country":"Netherlands"
+        ///        
+        ///     }
+        /// </remarks>
+        /// <returns></returns>
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
         [HttpPost]
         public async Task<ActionResult<AddressDTO>> PostAddress(AddressDTO addressDTO)
         {
@@ -302,6 +417,19 @@ namespace AddressProject.Controllers
         }
 
         // DELETE: api/Addresses/5
+        /// <summary>
+        /// Deletes a specific Address Item by Id.
+        /// </summary>
+        /// <param name="id">the id of address item to delete</param>
+        ///  <remarks>
+        /// Sample request:
+        ///
+        ///     Delete 
+        ///     {
+        ///        "Id": 1
+        ///     }
+        /// </remarks>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAddress(int id)
         {

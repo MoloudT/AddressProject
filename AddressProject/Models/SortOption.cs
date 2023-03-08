@@ -5,7 +5,8 @@ namespace AddressProject.Models
     public class SortOption
     {
             public SortOrderType? SortOrder { get; set; }
-            public SortByType? SortBy { get; set; }
+            public string? SortBy { get; set; }
+        //  public SortByType? SortBy { get; set; }
     }
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum SortOrderType
@@ -14,7 +15,7 @@ namespace AddressProject.Models
             Desc
     }
 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    /*[JsonConverter(typeof(JsonStringEnumConverter))]
     public enum SortByType
     {
             Id,
@@ -23,6 +24,6 @@ namespace AddressProject.Models
             ZipCode,
             City,
             Country
-    }
+    }*/
 
 }
