@@ -13,6 +13,7 @@ namespace AddressProject.Models
             Asc,
             Desc
     }
+
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum SortByType
     {
